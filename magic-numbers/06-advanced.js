@@ -5,8 +5,8 @@
  */
 
 function validarSenha(senha) {
-  const limiteTamanho = 8;
-  if (senha.length < limiteTamanho) {
+  const limiteSenhaCurta = 8;
+  if (senha.length < limiteSenhaCurta) {
     return {
       valida: false,
       mensagem: "Senha muito curta",
@@ -15,29 +15,36 @@ function validarSenha(senha) {
 
   let pontuacao = 0;
   
-  if (senha.length >= 12) {
-    pontuacao += 2;
-  } else if (senha.length >= 10) {
-    pontuacao += 1;
+  const maiorPontuacaoSenha = 12;
+  const menorPontuacaoSenha = 10;
+  const menorAumentoPontuacao = 1;
+  const medioAumentoPontuacao = 2;
+  const maiorAumentoPontuacao = 3;
+  if (senha.length >= maiorPontuacaoSenha) {
+    pontuacao += medioAumentoPontuacao;
+  } else if (senha.length >= menorPontuacaoSenha) {
+    pontuacao += menorAumentoPontuacao;
   }
 
   if (/[A-Z]/.test(senha)) {
-    pontuacao += 2;
+    pontuacao += medioAumentoPontuacao;
   }
   if (/[a-z]/.test(senha)) {
-    pontuacao += 2;
+    pontuacao += medioAumentoPontuacao;
   }
   if (/[0-9]/.test(senha)) {
-    pontuacao += 2;
+    pontuacao += medioAumentoPontuacao;
   }
   if (/[^A-Za-z0-9]/.test(senha)) {
-    pontuacao += 3;
+    pontuacao += maiorAumentoPontuacao;
   }
 
-  if (pontuacao < 5) {
+  const pontuacaoFraca = 5;
+  const pontuacaoMedia = 8;
+  if (pontuacao < pontuacaoFraca) {
     return { valida: false, mensagem: "Senha fraca" };
   }
-  if (pontuacao < 8) {
+  if (pontuacao < pontuacaoMedia) {
     return { valida: true, mensagem: "Senha média" };
   }
 
