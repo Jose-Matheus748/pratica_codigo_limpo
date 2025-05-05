@@ -3,40 +3,43 @@
  * Refatore esta função de processamento de pedido,
  * dividindo-a em funções menores com responsabilidade única.
  */
-
-async function processarPedido(pedido, cliente) {
-  // Validar pedido
+function validandoPedido(pedido, cliente) {
   if (!pedido.itens || pedido.itens.length === 0) {
     return { sucesso: false, mensagem: "Pedido vazio" };
   }
 
   if (!cliente.endereco || !cliente.endereco.cep) {
     return { sucesso: false, mensagem: "Endereço de entrega incompleto" };
-  }
+  }  
+}
 
-  // Calcular totais
+function calculandoTotais(pedido) {
   let subtotal = 0;
   let pesoTotal = 0;
   let produtosIndisponiveis = [];
 
-  for (const item of pedido.itens) {
-    // Verificar estoque
-    const disponibilidade = await verificarEstoque(
-      item.produtoId,
-      item.quantidade
-    );
-    if (!disponibilidade.disponivel) {
-      produtosIndisponiveis.push(item.produtoId);
-      continue;
-    }
+  for (const item of pedido.itens) {verificandoEstoque()} 
+}
 
-    const produto = await buscarProduto(item.produtoId);
-    if (!produto) continue;
-
-    subtotal += produto.preco * item.quantidade;
-    pesoTotal += produto.peso * item.quantidade;
+async function verificandoEstoque(produtoID) {
+  const disponibilidade = await verificarEstoque(
+    item.produtoId,
+    item.quantidade
+  );
+  if (!disponibilidade.disponivel) {
+    produtosIndisponiveis.push(item.produtoId);
+    continue;
   }
 
+  const produto = await buscarProduto(item.produtoId);
+  if (!produto) continue;
+  
+  subtotal += produto.preco * item.quantidade;
+  pesoTotal += produto.peso * item.quantidade;
+  return { disponivel: true };
+}
+
+function verificandoProdutosIndisponiveis(produtosIndisponiveis) {
   if (produtosIndisponiveis.length > 0) {
     return {
       sucesso: false,
@@ -44,8 +47,9 @@ async function processarPedido(pedido, cliente) {
       produtosIndisponiveis,
     };
   }
+}
 
-  // Calcular frete
+async function calculandoFrete(cliente) {
   let valorFrete = 0;
 
   try {
@@ -58,9 +62,10 @@ async function processarPedido(pedido, cliente) {
   } catch (erro) {
     console.error("Erro ao calcular frete:", erro);
     valorFrete = 15; // Valor padrão caso API falhe
-  }
+  }  
+}
 
-  // Aplicar promoções
+async function aplicarPromocoes(cliente) {
   let desconto = 0;
 
   if (subtotal > 300) {
@@ -75,11 +80,13 @@ async function processarPedido(pedido, cliente) {
       desconto = Math.max(desconto, cupomValido.valorDesconto);
     }
   }
+}
 
-  // Calcular total final
-  const total = subtotal + valorFrete - desconto;
+function calcularTotalFinal(subtotal, valorFrete, desconto) {
+  const total = subtotal + valorFrete - desconto;  
+}
 
-  // Registrar pedido no banco de dados
+async function registrandoPedidosBancoDados(pedido, cliente) {
   try {
     const idPedido = await salvarPedidoBD({
       cliente: cliente.id,
@@ -91,41 +98,33 @@ async function processarPedido(pedido, cliente) {
       status: "aguardando_pagamento",
       data: new Date(),
     });
-
-    // Enviar e-mail de confirmação
-    await enviarEmailConfirmacao(cliente.email, {
-      idPedido,
-      itens: pedido.itens,
-      subtotal,
-      frete: valorFrete,
-      desconto,
-      total,
-    });
-
-    return {
-      sucesso: true,
-      mensagem: "Pedido processado com sucesso",
-      idPedido,
-      resumo: {
-        subtotal,
-        frete: valorFrete,
-        desconto,
-        total,
-      },
-    };
-  } catch (erro) {
+  }catch (erro) {
     console.error("Erro ao finalizar pedido:", erro);
     return { sucesso: false, mensagem: "Erro ao finalizar pedido" };
   }
 }
 
-// Funções auxiliares para o exemplo
-async function verificarEstoque(produtoId, quantidade) {
-  return { disponivel: true };
-}
+async function enviandoEmailConfirmacao(pedido, cliente) {
+  await enviarEmailConfirmacao(cliente.email, {
+    idPedido,
+    itens: pedido.itens,
+    subtotal,
+    frete: valorFrete,
+    desconto,
+    total,
+  });
 
-async function buscarProduto(produtoId) {
-  return { preco: 50, peso: 0.5 };
+  return {
+    sucesso: true,
+    mensagem: "Pedido processado com sucesso",
+    idPedido,
+    resumo: {
+      subtotal,
+      frete: valorFrete,
+      desconto,
+      total,
+    },
+  };
 }
 
 async function validarCupom(cupom, valorTotal) {

@@ -2,14 +2,13 @@
  * Exercício 1:
  * Refatore a função abaixo em múltiplas funções, cada uma com responsabilidade única.
  */
-
-function processarDadosUsuario(usuario) {
-  // Validação
+function validarDadosUsuario(usuario) {
   if (!usuario.nome || !usuario.email) {
     return { sucesso: false, mensagem: "Nome e email são obrigatórios" };
   }
+}
 
-  // Formatação
+function formatarDadosUsuario(usuario) {
   const nomeFormatado = usuario.nome
     .trim()
     .toLowerCase()
@@ -18,12 +17,13 @@ function processarDadosUsuario(usuario) {
     .join(" ");
 
   const emailFormatado = usuario.email.trim().toLowerCase();
+}
 
-  // Persistência
+function persistenciaDadosUsuario(usuario) {
   console.log(`Salvando usuário: ${nomeFormatado}, ${emailFormatado}`);
 
   return {
     sucesso: true,
     usuario: { nome: nomeFormatado, email: emailFormatado },
-  };
+  };  
 }

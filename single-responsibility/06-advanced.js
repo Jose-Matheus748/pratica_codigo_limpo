@@ -4,14 +4,14 @@
  * dividindo-a em várias funções menores.
  */
 
-function analisarDadosVendas(dadosVendas) {
-  // Validação de dados
+function validacaoDadosVendas(dadosVendas) {
   if (!Array.isArray(dadosVendas) || dadosVendas.length === 0) {
     console.error("Dados de vendas inválidos");
     return null;
   }
+}
 
-  // Processamento e cálculos
+function processamentoCalculo(dadosVendas) {
   const vendaPorRegiao = {};
   const vendaPorProduto = {};
   const vendaPorMes = {};
@@ -30,41 +30,46 @@ function analisarDadosVendas(dadosVendas) {
       console.warn("Venda com dados incompletos foi ignorada");
       continue;
     }
+  }
+}
 
-    // Calcular vendas por região
-    vendaPorRegiao[venda.regiao] =
-      (vendaPorRegiao[venda.regiao] || 0) + venda.valor;
+function calculandoVendaRegiao(venda) {
+  vendaPorRegiao[venda.regiao] = (vendaPorRegiao[venda.regiao] || 0) + venda.valor;
+}
 
-    // Calcular vendas por produto
-    vendaPorProduto[venda.produto] =
-      (vendaPorProduto[venda.produto] || 0) + venda.valor;
+function calculandoVendaProduto(venda) {
+  vendaPorProduto[venda.produto] = (vendaPorProduto[venda.produto] || 0) + venda.valor;
+}
 
-    // Determinar mês da venda
-    const data = new Date(venda.data);
+function determinandoMesdaVenda(venda) {
+  const data = new Date(venda.data);
     const mes = `${data.getFullYear()}-${(data.getMonth() + 1)
       .toString()
       .padStart(2, "0")}`;
     vendaPorMes[mes] = (vendaPorMes[mes] || 0) + venda.valor;
+}
 
-    // Atualizar venda total
-    vendaTotal += venda.valor;
+function atualizandoVendaTotal(venda) {
+   vendaTotal += venda.valor;
+}
 
-    // Verificar se é a maior venda
-    if (venda.valor > maiorVenda.valor) {
-      maiorVenda = {
-        valor: venda.valor,
-        data: venda.data,
-        produto: venda.produto,
-        regiao: venda.regiao,
-      };
-    }
-
-    // Contabilizar clientes frequentes
-    clientesMaisFrequentes[venda.cliente] =
-      (clientesMaisFrequentes[venda.cliente] || 0) + 1;
+function testeMaiorVenda(venda) {
+  if (venda.valor > maiorVenda.valor) {
+    maiorVenda = {
+      valor: venda.valor,
+      data: venda.data,
+      produto: venda.produto,
+      regiao: venda.regiao,
+    };
   }
+}
 
-  // Transformação para arrays ordenados
+function clientesFrquentes(venda) {
+  clientesMaisFrequentes[venda.cliente] =
+  (clientesMaisFrequentes[venda.cliente] || 0) + 1;
+}
+
+function transformandoArray(venda) {
   const regioes = Object.entries(vendaPorRegiao)
     .map(([regiao, valor]) => ({ regiao, valor }))
     .sort((a, b) => b.valor - a.valor);
@@ -81,8 +86,9 @@ function analisarDadosVendas(dadosVendas) {
     .map(([cliente, frequencia]) => ({ cliente, frequencia }))
     .sort((a, b) => b.frequencia - a.frequencia)
     .slice(0, 5);
+}
 
-  // Cálculos de tendências
+function calculandoTendencias(vendaTotal, vendaPorMes) {
   const mediaMensal = vendaTotal / Object.keys(vendaPorMes).length;
 
   let tendencia = "estável";
@@ -100,8 +106,9 @@ function analisarDadosVendas(dadosVendas) {
       tendencia = "queda";
     }
   }
+}
 
-  // Criação do relatório
+function criandoRelatorio(vendaTotal, mediaMensal, tendencia, topRegioes, regioes, topProdutos, produtos, evolucaoMensal, meses, maiorVenda, clientesFrequentes, topClientes) {
   const relatorio = {
     vendaTotal,
     mediaMensal,
@@ -112,8 +119,9 @@ function analisarDadosVendas(dadosVendas) {
     maiorVenda,
     clientesFrequentes: topClientes,
   };
+}
 
-  // Imprimir relatório
+function imprimindoRelatorio(vendaTotal, mediaMensal, tendencia, regioes, produtos) {
   console.log("=== RELATÓRIO DE VENDAS ===");
   console.log(`Venda Total: R$ ${vendaTotal.toFixed(2)}`);
   console.log(`Média Mensal: R$ ${mediaMensal.toFixed(2)}`);

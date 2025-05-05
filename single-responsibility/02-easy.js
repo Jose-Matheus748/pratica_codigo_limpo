@@ -2,8 +2,7 @@
  * Exercício 2:
  * Divida a função abaixo em múltiplas funções para seguir o princípio de responsabilidade única.
  */
-
-function gerarRelatorio(vendas) {
+function gerarRelatorioVendas(vendas) {
   let totalVendas = 0;
   let maiorVenda = 0;
   let menorVenda = Infinity;
@@ -13,9 +12,13 @@ function gerarRelatorio(vendas) {
     if (venda > maiorVenda) maiorVenda = venda;
     if (venda < menorVenda) menorVenda = venda;
   }
+}
 
-  const media = totalVendas / vendas.length;
+function calcularMediaVendas(totalVendas, vendas) {
+  const media = totalVendas / vendas.length;  
+}
 
+function imprimirRelatorioVendas(totalVendas, media, maiorVenda, menorVenda) {
   console.log("=== Relatório de Vendas ===");
   console.log(`Total: R$ ${totalVendas.toFixed(2)}`);
   console.log(`Média: R$ ${media.toFixed(2)}`);

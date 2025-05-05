@@ -3,9 +3,7 @@
  * Divida esta função de processamento de pagamento em múltiplas funções,
  * cada uma com responsabilidade única.
  */
-
-async function processarPagamento(dadosPagamento) {
-  // Validação
+function validandoPagamento(dadosPagamento) {
   if (!dadosPagamento.valor || dadosPagamento.valor <= 0) {
     return { sucesso: false, mensagem: "Valor inválido" };
   }
@@ -17,8 +15,9 @@ async function processarPagamento(dadosPagamento) {
   ) {
     return { sucesso: false, mensagem: "Dados do cartão inválidos" };
   }
+}
 
-  // Formatação do cartão
+function formatandoCartao(dadosPagamento) {
   const numeroCartaoFormatado = dadosPagamento.cartao.numero.replace(
     /\s+/g,
     ""
@@ -27,8 +26,9 @@ async function processarPagamento(dadosPagamento) {
   if (!/^\d{16}$/.test(numeroCartaoFormatado)) {
     return { sucesso: false, mensagem: "Número de cartão inválido" };
   }
+}
 
-  // Cálculo de taxa
+function CalculandoTaxas(dadosPagamento) {
   let taxa = 0;
   if (dadosPagamento.metodoPagamento === "credito") {
     taxa = dadosPagamento.valor * 0.03;
@@ -36,9 +36,10 @@ async function processarPagamento(dadosPagamento) {
     taxa = dadosPagamento.valor * 0.01;
   }
 
-  const valorTotal = dadosPagamento.valor + taxa;
+  const valorTotal = dadosPagamento.valor + taxa;  
+}
 
-  // Processamento na gateway
+async function processamentoGateWay(dadosPagamento) {
   try {
     const resposta = await fetch("https://api.pagamento.com/processar", {
       method: "POST",
@@ -54,29 +55,30 @@ async function processarPagamento(dadosPagamento) {
     });
 
     const resultado = await resposta.json();
+  }catch (erro) {
+  console.error("Erro no processamento:", erro);
+  return { sucesso: false, mensagem: "Erro ao processar pagamento" };
+  }
+}
 
-    // Registro do pagamento
-    console.log(
-      `Pagamento ${
-        resultado.aprovado ? "aprovado" : "negado"
-      }: R$ ${valorTotal.toFixed(2)}`
-    );
+function registroPagamento(resultado) {
+  console.log(
+    `Pagamento ${
+      resultado.aprovado ? "aprovado" : "negado"
+    }: R$ ${valorTotal.toFixed(2)}`
+  );
 
-    if (resultado.aprovado) {
-      return {
-        sucesso: true,
-        mensagem: "Pagamento aprovado",
-        transacao: resultado.idTransacao,
-        valorTotal,
-      };
-    } else {
-      return {
-        sucesso: false,
-        mensagem: `Pagamento negado: ${resultado.motivoRecusa}`,
-      };
-    }
-  } catch (erro) {
-    console.error("Erro no processamento:", erro);
-    return { sucesso: false, mensagem: "Erro ao processar pagamento" };
+  if (resultado.aprovado) {
+    return {
+      sucesso: true,
+      mensagem: "Pagamento aprovado",
+      transacao: resultado.idTransacao,
+      valorTotal,
+    };
+  } else {
+    return {
+      sucesso: false,
+      mensagem: `Pagamento negado: ${resultado.motivoRecusa}`,
+    };
   }
 }
